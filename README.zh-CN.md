@@ -86,6 +86,72 @@ docker run -d \
 
 **参见 [ENVIRONMENT.zh-CN.md](ENVIRONMENT.zh-CN.md) 了解所有可用的环境变量和示例。**
 
+## 多架构支持
+
+aprsc Docker 镜像支持多种 CPU 架构，具备**自动平台检测**功能：
+
+| 架构 | 平台 | 说明 | 设备 |
+|------|------|------|------|
+| **AMD64** | `linux/amd64` | 64 位 x86 处理器 | Intel/AMD 服务器、台式机、笔记本 |
+| **ARM64** | `linux/arm64` | 64 位 ARM 处理器 (ARMv8) | 树莓派 4/5、ARM 服务器、Apple Silicon |
+| **ARMv7** | `linux/arm/v7` | 32 位 ARM 处理器 (ARMv7) | 树莓派 2/3、旧款 ARM 设备 |
+
+### 自动平台检测
+
+Docker 会自动为你的设备选择正确的架构：
+
+```bash
+# 在 x86-64 服务器上 - 拉取 AMD64 镜像
+docker pull bd5rv/aprsc:latest
+
+# 在树莓派 4 上 - 拉取 ARM64 镜像
+docker pull bd5rv/aprsc:latest
+
+# 在树莓派 3 上 - 拉取 ARMv7 镜像
+docker pull bd5rv/aprsc:latest
+```
+
+无需特殊配置！
+
+### 树莓派使用
+
+非常适合在树莓派上运行 APRS iGate：
+
+```bash
+# 拉取并运行（自动架构检测）
+docker run -d \
+  -e APRSC_SERVER_ID=YOUR-CALL \
+  -e APRSC_PASSCODE=12345 \
+  -e APRSC_UPLINK_ENABLED=yes \
+  -p 14580:14580 \
+  -p 14501:14501 \
+  --name aprsc \
+  --restart unless-stopped \
+  bd5rv/aprsc:latest
+
+# 验证架构
+docker exec aprsc uname -m
+# 树莓派 4/5: aarch64 (ARM64)
+# 树莓派 2/3: armv7l (ARMv7)
+```
+
+### 指定平台拉取
+
+强制使用特定架构（用于测试）：
+
+```bash
+# 在任何主机上强制使用 AMD64
+docker pull --platform linux/amd64 bd5rv/aprsc:latest
+
+# 在任何主机上强制使用 ARM64
+docker pull --platform linux/arm64 bd5rv/aprsc:latest
+
+# 在任何主机上强制使用 ARMv7
+docker pull --platform linux/arm/v7 bd5rv/aprsc:latest
+```
+
+**参见 [MULTI_ARCH.md](MULTI_ARCH.md) 了解详细的多架构文档、构建说明和故障排除。**
+
 ### 高级：使用配置文件（可选）
 
 如果你更喜欢使用配置文件，可以创建 `aprsc.conf` 文件。你可以从构建的镜像中提取示例配置：

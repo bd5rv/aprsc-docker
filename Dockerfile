@@ -3,6 +3,14 @@
 # ============================================================
 FROM alpine:latest AS builder
 
+# Platform build arguments (automatically set by buildx)
+ARG TARGETPLATFORM
+ARG BUILDPLATFORM
+ARG TARGETARCH
+
+# Display build information for debugging
+RUN echo "Building on $BUILDPLATFORM for $TARGETPLATFORM (arch: $TARGETARCH)"
+
 # Install build dependencies
 RUN apk add --no-cache \
     build-base \

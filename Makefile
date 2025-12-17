@@ -1,4 +1,4 @@
-.PHONY: build run stop clean logs shell config-example
+.PHONY: build run stop clean logs shell config-example test-multiarch push-multiarch inspect-multiarch
 
 # Build image
 build:
@@ -40,3 +40,24 @@ clean:
 # Complete deployment workflow
 deploy: config-example
 	@echo "Please edit aprsc.conf file, then run 'make run' to start service"
+
+# Multi-architecture targets
+
+# Test multi-architecture build locally
+test-multiarch:
+	@echo "Testing multi-architecture build..."
+	@if [ -z "$(PLATFORM)" ]; then \
+		./test-multiarch-build.sh; \
+	else \
+		./test-multiarch-build.sh $(PLATFORM); \
+	fi
+
+# Push multi-architecture image to Docker Hub
+push-multiarch:
+	@echo "Building and pushing multi-architecture images to Docker Hub..."
+	./push-to-dockerhub.sh
+
+# Inspect multi-architecture manifest list on Docker Hub
+inspect-multiarch:
+	@echo "Inspecting multi-architecture manifest list..."
+	docker buildx imagetools inspect bd5rv/aprsc:latest

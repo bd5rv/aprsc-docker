@@ -86,6 +86,72 @@ The container will:
 
 **See [ENVIRONMENT.md](ENVIRONMENT.md) for all available environment variables and examples.**
 
+## Multi-Architecture Support
+
+The aprsc Docker image supports multiple CPU architectures with **automatic platform detection**:
+
+| Architecture | Platform | Description | Devices |
+|--------------|----------|-------------|---------|
+| **AMD64** | `linux/amd64` | 64-bit x86 processors | Intel/AMD servers, desktops, laptops |
+| **ARM64** | `linux/arm64` | 64-bit ARM processors (ARMv8) | Raspberry Pi 4/5, ARM servers, Apple Silicon |
+| **ARMv7** | `linux/arm/v7` | 32-bit ARM processors (ARMv7) | Raspberry Pi 2/3, older ARM devices |
+
+### Automatic Platform Detection
+
+Docker automatically selects the correct architecture for your device:
+
+```bash
+# On x86-64 server - pulls AMD64 image
+docker pull bd5rv/aprsc:latest
+
+# On Raspberry Pi 4 - pulls ARM64 image
+docker pull bd5rv/aprsc:latest
+
+# On Raspberry Pi 3 - pulls ARMv7 image
+docker pull bd5rv/aprsc:latest
+```
+
+No special configuration needed!
+
+### Raspberry Pi Usage
+
+Perfect for APRS iGate on Raspberry Pi:
+
+```bash
+# Pull and run (automatic architecture detection)
+docker run -d \
+  -e APRSC_SERVER_ID=YOUR-CALL \
+  -e APRSC_PASSCODE=12345 \
+  -e APRSC_UPLINK_ENABLED=yes \
+  -p 14580:14580 \
+  -p 14501:14501 \
+  --name aprsc \
+  --restart unless-stopped \
+  bd5rv/aprsc:latest
+
+# Verify architecture
+docker exec aprsc uname -m
+# Raspberry Pi 4/5: aarch64 (ARM64)
+# Raspberry Pi 2/3: armv7l (ARMv7)
+```
+
+### Platform-Specific Pulls
+
+Force a specific architecture (useful for testing):
+
+```bash
+# Force AMD64 on any host
+docker pull --platform linux/amd64 bd5rv/aprsc:latest
+
+# Force ARM64 on any host
+docker pull --platform linux/arm64 bd5rv/aprsc:latest
+
+# Force ARMv7 on any host
+docker pull --platform linux/arm/v7 bd5rv/aprsc:latest
+```
+
+**See [MULTI_ARCH.md](MULTI_ARCH.md) for detailed multi-architecture documentation, build instructions, and troubleshooting.**
+
 ### Advanced: Using Configuration File (Optional)
 
 If you prefer to use a configuration file, you can create the `aprsc.conf` file. You can extract the example configuration from the built image:
