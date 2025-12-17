@@ -1,0 +1,27 @@
+# aprsc configuration file template
+# Please modify this file according to your needs and save as aprsc.conf
+
+# Server identification (required)
+# Use your amateur radio callsign
+ServerId CHANGEME
+
+# Administrator information (required)
+MyAdmin "Your Name, CHANGEME"
+MyEmail your.email@example.com
+
+# Server port configuration
+# Full feed port (allow send and receive)
+Listen 0.0.0.0:14580 fullfeed
+# Read-only port
+Listen 0.0.0.0:10152 ro
+
+# Upstream server configuration
+# Rotate multiple servers to improve availability
+Uplink "rotate.aprs2.net" 10152
+
+# Log configuration
+LogFile /var/log/aprsc/aprsc.log
+
+# Other optional configuration
+# MaxClients 500
+# FileLimit 10000

@@ -1,0 +1,24 @@
+# Configuration files (may contain sensitive information)
+aprsc.conf
+
+# Log files
+logs/
+*.log
+
+# Docker related
+.env
+
+# Backup files
+*.bak
+*.old
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo

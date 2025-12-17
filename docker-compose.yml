@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  aprsc:
+    build: .
+    container_name: aprsc
+    restart: unless-stopped
+    ports:
+      # APRS-IS full feed port
+      - "14580:14580"
+      # Read-only port
+      - "10152:10152"
+      # UDP packet submission port
+      - "8080:8080/udp"
+      # HTTP position upload port
+      - "8080:8080/tcp"
+      # Web monitoring page
+      - "14501:14501"
+    volumes:
+      # Mount configuration file
+      - ./aprsc.conf:/etc/aprsc/aprsc.conf:ro
+      # Persist logs
+      - ./logs:/var/log/aprsc
+      # Persist runtime data (only mount data subdirectory, don't override entire directory)
+      - aprsc-data:/var/run/aprsc/data
+    # Resource limits (optional)
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 128M
+
+volumes:
+  aprsc-data:
