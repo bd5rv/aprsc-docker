@@ -6,7 +6,7 @@ This is a Docker configuration for running [aprsc](https://github.com/hessu/aprs
 
 ## Features
 
-- **Ultra-compact Image**: Only 11.2 MB runtime image
+- **Ultra-compact Image**: Only 4.8 MB download size (11.2 MB uncompressed)
 - **Zero-Configuration**: Runs without config file using environment variables
 - **Environment Variable Support**: All settings configurable via environment variables with sensible defaults
 - **Multi-stage Build**: Both stages based on Alpine Linux for optimal compatibility
