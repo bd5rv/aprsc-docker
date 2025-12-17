@@ -6,8 +6,8 @@ This is a Docker configuration for running [aprsc](https://github.com/hessu/aprs
 
 ## Features
 
+- **Ultra-compact Image**: Only 11.2 MB runtime image
 - **Multi-stage Build**: Both stages based on Alpine Linux for optimal compatibility
-- **Minimal Image**: Runtime image is compact (~20-30MB)
 - **Secure Execution**: Runs as non-root user (aprsc)
 - **Complete Features**: Includes web monitoring interface and all APRS-IS functionality
 - **Easy Deployment**: Supports Docker Compose and Makefile
@@ -225,10 +225,32 @@ aprsc-docker/
 
 ## Image Size
 
-- Build stage image (Alpine Linux): ~370MB
-- Runtime stage image (Alpine Linux): ~20-30MB
+The final Docker image is extremely compact:
 
-Using Alpine Linux for both build and runtime environments ensures binary compatibility.
+- **Runtime image**: **11.2 MB** 🎉
+- Build stage image: ~370 MB (discarded after build)
+
+### Size Breakdown
+
+| Component | Size | Description |
+|-----------|------|-------------|
+| Alpine Linux base | 8.44 MB | Minimal Linux distribution |
+| aprsc binary & web files | 1.78 MB | Server program and monitoring interface |
+| Runtime dependencies | 981 KB | libevent, openssl, libcap, tini |
+| Configuration & user | ~8 KB | Config template and user setup |
+
+### Why So Small?
+
+- **Alpine Linux**: Uses musl libc instead of glibc, base image only 8.44 MB
+- **Multi-stage build**: Build tools (gcc, make, etc.) not included in final image
+- **Minimal dependencies**: Only runtime-required libraries installed
+- **Efficient compilation**: aprsc is a well-optimized C program
+
+This makes the image ideal for:
+- 🚀 Fast deployment and distribution
+- 💾 Resource-constrained environments
+- 🌐 Edge devices and Raspberry Pi
+- ⚡ Quick container startup
 
 ## Advanced Configuration
 
