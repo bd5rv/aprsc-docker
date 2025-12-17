@@ -596,3 +596,11 @@ healthcheck:
 
 - aprsc 软件遵循其原始许可证
 - 本 Docker 配置文件采用 MIT 许可证
+
+
+---
+
+**Built with ❤️ for the Amateur Radio community**
+
+Enjoy! 73!
+de BD5RV

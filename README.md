@@ -597,3 +597,10 @@ Issues and Pull Requests are welcome!
 
 - aprsc software follows its original license
 - This Docker configuration is licensed under MIT License
+
+---
+
+**Built with ❤️ for the Amateur Radio community**
+
+Enjoy! 73!
+de BD5RV
