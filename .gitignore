@@ -8,6 +8,7 @@ logs/
 # Docker related
 .env
 !.env.example
+push-to-dockerhub.sh
 
 # Backup files
 *.bak
