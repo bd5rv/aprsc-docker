@@ -16,9 +16,29 @@ services:
       - "8080:8080/tcp"
       # Web monitoring page
       - "14501:14501"
+    environment:
+      # Server identification (CHANGE THESE!)
+      - APRSC_SERVER_ID=NOCALL
+      - APRSC_PASSCODE=-1
+      - APRSC_MY_ADMIN=Docker User
+      - APRSC_MY_EMAIL=root@localhost
+
+      # Enable/disable features
+      - APRSC_ENABLE_FULL_FEED=yes
+      - APRSC_ENABLE_IGATE=yes
+      - APRSC_ENABLE_UDP_SUBMIT=yes
+
+      # Uplink configuration (set APRSC_UPLINK_ENABLED=yes to enable)
+      - APRSC_UPLINK_ENABLED=no
+      # - APRSC_UPLINK_SERVER=rotate.aprs2.net
+      # - APRSC_UPLINK_PORT=10152
+
+      # Or load from .env file (copy .env.example to .env)
+      # See .env.example for all available options
     volumes:
-      # Mount configuration file
-      - ./aprsc.conf:/etc/aprsc/aprsc.conf:ro
+      # Mount configuration file (OPTIONAL - will use environment variables if not provided)
+      # - ./aprsc.conf:/etc/aprsc/aprsc.conf:ro
+
       # Persist logs
       - ./logs:/var/log/aprsc
       # Persist runtime data (only mount data subdirectory, don't override entire directory)

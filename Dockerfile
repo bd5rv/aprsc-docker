@@ -53,10 +53,14 @@ RUN addgroup -S aprsc && \
 # Copy example configuration file from builder stage
 COPY --from=builder /tmp/aprsc/src/aprsc.conf /etc/aprsc/aprsc.conf.example
 
+# Copy entrypoint script
+COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
 # Create necessary directories and set permissions
-RUN mkdir -p /var/run/aprsc /var/run/aprsc/logs /var/log/aprsc && \
+RUN mkdir -p /var/run/aprsc /var/run/aprsc/logs /var/log/aprsc /etc/aprsc && \
     ln -s /opt/aprsc/web /var/run/aprsc/web && \
-    chown -R aprsc:aprsc /var/run/aprsc /var/log/aprsc && \
+    chown -R aprsc:aprsc /var/run/aprsc /var/log/aprsc /etc/aprsc && \
     chmod 755 /var/run/aprsc /var/log/aprsc
 
 # Expose ports (adjust according to your configuration)
@@ -69,11 +73,10 @@ EXPOSE 14580 10152 8080 8080/udp 14501
 # Set working directory
 WORKDIR /var/run/aprsc
 
-# Use tini as init process
-ENTRYPOINT ["/sbin/tini", "--"]
+# Use tini and entrypoint script
+ENTRYPOINT ["/sbin/tini", "--", "/usr/local/bin/entrypoint.sh"]
 
-# Start aprsc (requires valid configuration file)
-# Note: You need to copy aprsc.conf.example to aprsc.conf and configure it
+# Start aprsc
+# Configuration will be auto-generated from environment variables if not provided
 # -u aprsc: Run as aprsc user (secure)
-# Don't use -f parameter to run in foreground (Docker needs foreground process)
 CMD ["/opt/aprsc/sbin/aprsc", "-c", "/etc/aprsc/aprsc.conf", "-u", "aprsc"]

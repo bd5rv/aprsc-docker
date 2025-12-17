@@ -7,6 +7,8 @@ This is a Docker configuration for running [aprsc](https://github.com/hessu/aprs
 ## Features
 
 - **Ultra-compact Image**: Only 11.2 MB runtime image
+- **Zero-Configuration**: Runs without config file using environment variables
+- **Environment Variable Support**: All settings configurable via environment variables with sensible defaults
 - **Multi-stage Build**: Both stages based on Alpine Linux for optimal compatibility
 - **Secure Execution**: Runs as non-root user (aprsc)
 - **Complete Features**: Includes web monitoring interface and all APRS-IS functionality
@@ -14,9 +16,33 @@ This is a Docker configuration for running [aprsc](https://github.com/hessu/aprs
 
 ## Quick Start
 
-### 1. Prepare Configuration File
+### Zero-Configuration Start
 
-First, you need to create the `aprsc.conf` configuration file. You can extract the example configuration from the built image:
+The easiest way to get started - no configuration file needed!
+
+```bash
+# Pull and run (uses default values)
+docker compose up -d
+
+# Or with custom environment variables
+docker run -d \
+  -e APRSC_SERVER_ID=YOUR-CALL \
+  -e APRSC_PASSCODE=12345 \
+  -p 14580:14580 \
+  -p 14501:14501 \
+  aprsc-docker-aprsc
+```
+
+The container will:
+- ✅ Start immediately without any configuration file
+- ✅ Use sensible defaults for all settings
+- ✅ Show warnings to remind you to set your callsign and passcode
+
+**See [ENVIRONMENT.md](ENVIRONMENT.md) for all available environment variables and examples.**
+
+### Advanced: Using Configuration File (Optional)
+
+If you prefer to use a configuration file, you can create the `aprsc.conf` file. You can extract the example configuration from the built image:
 
 ```bash
 # Build the image
