@@ -16,9 +16,55 @@ This is a Docker configuration for running [aprsc](https://github.com/hessu/aprs
 
 ## Quick Start
 
-### Zero-Configuration Start
+### Use Pre-built Image from Docker Hub (Recommended)
 
-The easiest way to get started - no configuration file needed!
+The fastest way to get started - pull the ready-to-use image from Docker Hub:
+
+```bash
+# Pull the latest image
+docker pull bd5rv/aprsc:latest
+
+# Run with default settings
+docker run -d \
+  -p 14580:14580 \
+  -p 14501:14501 \
+  --name aprsc \
+  bd5rv/aprsc:latest
+
+# Or run with your callsign and passcode
+docker run -d \
+  -e APRSC_SERVER_ID=YOUR-CALL \
+  -e APRSC_PASSCODE=12345 \
+  -e APRSC_UPLINK_ENABLED=yes \
+  -p 14580:14580 \
+  -p 14501:14501 \
+  --name aprsc \
+  bd5rv/aprsc:latest
+```
+
+**Access web interface at:** http://localhost:14501/
+
+**Available tags:**
+- `latest` - Latest stable release
+- `2.1.19-g6d55570` - Specific version with git hash
+- `2.1.19` - Semantic version
+- `2.1` - Major.minor version
+- `2` - Major version
+
+**Docker Hub:** https://hub.docker.com/r/bd5rv/aprsc
+
+**Using Docker Compose with Hub image:**
+
+```bash
+# Use the pre-built image with Docker Compose
+docker compose -f docker-compose.hub.yml up -d
+```
+
+See `docker-compose.hub.yml` for the full configuration example.
+
+### Build from Source (Alternative)
+
+If you prefer to build the image yourself:
 
 ```bash
 # Pull and run (uses default values)

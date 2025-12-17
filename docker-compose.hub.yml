@@ -1,0 +1,69 @@
+version: '3.8'
+
+# Docker Compose configuration using pre-built image from Docker Hub
+# This is the recommended way for most users
+
+services:
+  aprsc:
+    image: bd5rv/aprsc:latest  # Use pre-built image from Docker Hub
+    container_name: aprsc
+    restart: unless-stopped
+    ports:
+      # APRS-IS full feed port
+      - "14580:14580"
+      # Read-only port
+      - "10152:10152"
+      # UDP packet submission port
+      - "8080:8080/udp"
+      # HTTP position upload port
+      - "8080:8080/tcp"
+      # Web monitoring page
+      - "14501:14501"
+    environment:
+      # Server identification (CHANGE THESE!)
+      - APRSC_SERVER_ID=NOCALL
+      - APRSC_PASSCODE=-1
+      - APRSC_MY_ADMIN=Docker User
+      - APRSC_MY_EMAIL=root@localhost
+
+      # Enable/disable features
+      - APRSC_ENABLE_FULL_FEED=yes
+      - APRSC_ENABLE_IGATE=yes
+      - APRSC_ENABLE_UDP_SUBMIT=yes
+
+      # Uplink configuration (set APRSC_UPLINK_ENABLED=yes to enable)
+      - APRSC_UPLINK_ENABLED=no
+      # - APRSC_UPLINK_SERVER=rotate.aprs2.net
+      # - APRSC_UPLINK_PORT=10152
+
+      # Or load from .env file (copy .env.example to .env)
+      # See .env.example for all available options
+    volumes:
+      # Mount configuration file (OPTIONAL - will use environment variables if not provided)
+      # - ./aprsc.conf:/etc/aprsc/aprsc.conf:ro
+
+      # Persist logs
+      - ./logs:/var/log/aprsc
+      # Persist runtime data (only mount data subdirectory, don't override entire directory)
+      - aprsc-data:/var/run/aprsc/data
+
+    # Health check: Verify the service is running and responding
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://127.0.0.1:14501/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+    # Resource limits (optional)
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 128M
+
+volumes:
+  aprsc-data:

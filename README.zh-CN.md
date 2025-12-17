@@ -14,9 +14,55 @@
 
 ## 快速开始
 
-### 零配置启动
+### 使用 Docker Hub 预构建镜像（推荐）
 
-最简单的启动方式 - 无需配置文件！
+最快的启动方式 - 直接从 Docker Hub 拉取现成的镜像：
+
+```bash
+# 拉取最新镜像
+docker pull bd5rv/aprsc:latest
+
+# 使用默认设置运行
+docker run -d \
+  -p 14580:14580 \
+  -p 14501:14501 \
+  --name aprsc \
+  bd5rv/aprsc:latest
+
+# 或使用你的呼号和密码运行
+docker run -d \
+  -e APRSC_SERVER_ID=YOUR-CALL \
+  -e APRSC_PASSCODE=12345 \
+  -e APRSC_UPLINK_ENABLED=yes \
+  -p 14580:14580 \
+  -p 14501:14501 \
+  --name aprsc \
+  bd5rv/aprsc:latest
+```
+
+**访问 Web 界面：** http://localhost:14501/
+
+**可用标签：**
+- `latest` - 最新稳定版本
+- `2.1.19-g6d55570` - 包含 git hash 的特定版本
+- `2.1.19` - 语义版本
+- `2.1` - 主版本.次版本
+- `2` - 主版本
+
+**Docker Hub:** https://hub.docker.com/r/bd5rv/aprsc
+
+**使用 Docker Compose 和 Hub 镜像：**
+
+```bash
+# 使用预构建镜像和 Docker Compose
+docker compose -f docker-compose.hub.yml up -d
+```
+
+完整配置示例请查看 `docker-compose.hub.yml` 文件。
+
+### 从源码构建（备选方案）
+
+如果你希望自己构建镜像：
 
 ```bash
 # 拉取并运行（使用默认值）
