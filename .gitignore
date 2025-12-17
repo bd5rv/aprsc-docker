@@ -9,6 +9,7 @@ logs/
 .env
 !.env.example
 push-to-dockerhub.sh
+DOCKER_HUB_OVERVIEW.md
 
 # Backup files
 *.bak
