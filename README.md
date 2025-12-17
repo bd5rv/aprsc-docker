@@ -1,5 +1,18 @@
 # aprsc Docker
 
+[![Docker Hub](https://img.shields.io/docker/v/bd5rv/aprsc?label=docker%20hub&logo=docker)](https://hub.docker.com/r/bd5rv/aprsc)
+[![Docker Pulls](https://img.shields.io/docker/pulls/bd5rv/aprsc)](https://hub.docker.com/r/bd5rv/aprsc)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
+> **Note**: This GitHub repository is a public mirror of our GitLab repository.
+>
+> - **Primary Development**: GitLab (http://dev.myhamplace.com/michael.chen/aprsc-docker)
+> - **CI/CD**: Automated builds and tests run on GitLab
+> - **Community**: Pull requests welcome here on GitHub!
+> - **Docker Images**: Available on [Docker Hub](https://hub.docker.com/r/bd5rv/aprsc)
+>
+> See [CONTRIBUTING.md](CONTRIBUTING.md) for contribution guidelines.
+
 [English](README.md) | [中文](README.zh-CN.md)
 
 This is a Docker configuration for running [aprsc](https://github.com/hessu/aprsc) (APRS-IS server).

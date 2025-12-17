@@ -1,0 +1,189 @@
+================================================================================
+Docker Hub Repository Information
+================================================================================
+
+Repository Name: bd5rv/aprsc
+
+================================================================================
+SHORT DESCRIPTION (100 characters max)
+================================================================================
+
+Multi-arch APRS-IS server (AMD64/ARM64/ARMv7). 4.8MB download. Zero-config. Raspberry Pi ready!
+
+Alternative options (choose one):
+
+1. Ultra-compact APRS-IS server. Multi-platform (x64/ARM). 4.8MB. Zero-config. Web monitoring.
+
+2. Production-ready APRS-IS server. Native ARM64/ARMv7. Tiny footprint. Raspberry Pi optimized.
+
+3. High-performance APRS-IS server. Multi-arch support. 4.8MB image. Perfect for RPi & servers.
+
+================================================================================
+CATEGORIES (Select from Docker Hub categories)
+================================================================================
+
+Primary Categories (select 2-3):
+
+✓ Networking
+✓ Monitoring & Logging
+✓ Internet of Things (IoT)
+
+Alternative/Additional:
+
+- Infrastructure
+- Communication
+
+================================================================================
+KEYWORDS/TAGS (for searchability)
+================================================================================
+
+aprs, aprs-is, amateur-radio, ham-radio, igate, packet-radio, aprsc,
+monitoring, alpine-linux, lightweight, iot, telemetry, tracking,
+position-reporting, radio-communication, multi-arch, arm64, armv7,
+raspberry-pi, raspberry-pi-4, raspberry-pi-5, arm, aarch64, multi-platform
+
+================================================================================
+DETAILED INFORMATION FOR SETTINGS
+================================================================================
+
+Repository Type: Public
+
+Source Repository:
+https://github.com/bd5rv/aprsc-docker
+
+Build Settings:
+- Branch: main
+- Dockerfile: Dockerfile
+- Build Context: /
+
+Supported Architectures:
+- linux/amd64
+- linux/arm64
+- linux/arm/v7
+
+Base Image: alpine:latest
+
+License: MIT
+
+================================================================================
+FULL OVERVIEW LINK
+================================================================================
+
+For the full overview/README tab content, copy from:
+./DOCKER_HUB_OVERVIEW.md
+
+================================================================================
+SOCIAL MEDIA / ANNOUNCEMENT TEXT
+================================================================================
+
+Tweet/Post text:
+
+🚀 New Multi-Arch Docker image: aprsc - APRS-IS Server
+📦 Only 4.8 MB download!
+🏗️ AMD64, ARM64, ARMv7 support
+🍓 Raspberry Pi ready (2/3/4/5)
+⚡ Zero-config startup
+🔒 Secure Alpine Linux base
+🌐 Web monitoring included
+
+Perfect for #HamRadio #APRS iGates on any platform!
+
+docker pull bd5rv/aprsc:latest
+
+#AmateurRadio #Docker #IoT #RaspberryPi #ARM
+
+================================================================================
+FAQ / COMMON QUESTIONS TO ADDRESS
+================================================================================
+
+Q: What is APRS?
+A: Automatic Packet Reporting System - real-time tactical digital communications
+   protocol for amateur radio.
+
+Q: What is APRS-IS?
+A: APRS Internet Service - global network of APRS servers connected via internet.
+
+Q: Which platforms are supported?
+A: AMD64 (Intel/AMD servers), ARM64 (Raspberry Pi 4/5, ARM servers, Apple Silicon),
+   and ARMv7 (Raspberry Pi 2/3). Docker automatically selects the correct architecture
+   for your device.
+
+Q: Will this work on Raspberry Pi?
+A: Yes! Fully tested on Raspberry Pi 2, 3, 4, and 5. Just pull and run - Docker
+   automatically uses the correct ARM image for your Pi model.
+
+Q: Do I need a ham radio license?
+A: To transmit APRS data via RF, yes. To run a server and gateway, depends on
+   your use case. Read-only monitoring doesn't require a license.
+
+Q: Can I use this for commercial purposes?
+A: APRS is primarily for amateur radio (non-commercial). Check local regulations.
+
+================================================================================
+DOCKER HUB SETTINGS CHECKLIST
+================================================================================
+
+[ ] Repository Name: bd5rv/aprsc
+[ ] Visibility: Public
+[ ] Short Description: (Copy from above)
+[ ] Categories: Networking, Monitoring & Logging
+[ ] Full Description: (Copy from DOCKER_HUB_OVERVIEW.md)
+[ ] Source Repository: https://github.com/bd5rv/aprsc-docker
+[ ] README: Auto-sync from GitHub (if available) or paste manually
+[ ] Tags: Configure automated builds for version tags
+[ ] Collaborators: (Add if needed)
+
+================================================================================
+SUGGESTED DOCKER HUB README STRUCTURE
+================================================================================
+
+The DOCKER_HUB_OVERVIEW.md file already contains the perfect structure:
+
+✓ Header with badges
+✓ Quick start commands
+✓ Features list
+✓ Configuration examples
+✓ Port documentation
+✓ Docker Compose example
+✓ Troubleshooting
+✓ Links to full documentation
+
+Just copy the entire content to Docker Hub's Description tab.
+
+================================================================================
+
+================================================================================
+MULTI-ARCHITECTURE BUILD NOTES
+================================================================================
+
+This image is built using Docker buildx with multi-platform support.
+
+Build Command:
+./push-to-dockerhub.sh
+
+Platforms Built:
+- linux/amd64 (x86-64)
+- linux/arm64 (ARMv8 / aarch64)
+- linux/arm/v7 (ARMv7 / armv7l)
+
+Build Time:
+- Total: ~15-20 minutes for all platforms
+- AMD64: ~3-5 minutes (native)
+- ARM64: ~5-7 minutes (QEMU emulation)
+- ARMv7: ~5-7 minutes (QEMU emulation)
+
+Image Sizes (compressed):
+- AMD64: ~4.8 MB
+- ARM64: ~4.6 MB
+- ARMv7: ~4.5 MB
+
+The buildx command creates a manifest list that allows Docker to automatically
+select the correct architecture when users pull the image.
+
+Verify manifest list:
+docker buildx imagetools inspect bd5rv/aprsc:latest
+
+For detailed instructions, see:
+https://github.com/bd5rv/aprsc-docker/blob/main/MULTI_ARCH.md
+
+================================================================================

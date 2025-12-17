@@ -1,0 +1,298 @@
+# GitLab CI/CD Pipeline for aprsc-docker
+# Supports: Multi-architecture build, upstream detection, auto-sync to GitHub
+
+# ============================================================
+# Global Configuration
+# ============================================================
+variables:
+  # Docker configuration
+  DOCKER_DRIVER: overlay2
+  DOCKER_TLS_CERTDIR: "/certs"
+  DOCKER_BUILDKIT: "1"
+
+  # Project configuration
+  DOCKERHUB_IMAGE: "bd5rv/aprsc"
+  UPSTREAM_REPO: "https://github.com/hessu/aprsc.git"
+  GITHUB_MIRROR: "git@github.com:bd5rv/aprsc-docker.git"
+
+  # Build platforms
+  BUILD_PLATFORMS: "linux/amd64,linux/arm64,linux/arm/v7"
+
+  # Upstream tracking file
+  UPSTREAM_STATE_FILE: ".gitlab/upstream-state.txt"
+
+  # Force build flag (set via pipeline variable)
+  FORCE_BUILD: "false"
+
+# Docker-in-Docker service
+services:
+  - docker:24-dind
+
+# Default image for jobs
+image: docker:24
+
+# Pipeline stages
+stages:
+  - detect      # Detect upstream changes
+  - build       # Build multi-arch images
+  - test        # Run tests
+  - push        # Push to Docker Hub
+  - sync        # Sync to GitHub
+
+# ============================================================
+# Stage 1: Detect Upstream Changes
+# ============================================================
+detect-upstream-changes:
+  stage: detect
+  image: alpine/git:latest
+  script:
+    - apk add --no-cache bash
+    - bash .gitlab/scripts/detect-upstream.sh
+  artifacts:
+    paths:
+      - .gitlab/upstream-state.txt
+      - .gitlab/build-flags.env
+      - .gitlab/upstream-commit-info.txt
+    expire_in: 1 day
+  rules:
+    # Run on schedule (daily cron)
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+    # Run on manual trigger
+    - if: $CI_PIPELINE_SOURCE == "web"
+    # Run on push to main
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  tags:
+    - docker
+
+# ============================================================
+# Stage 2: Build Multi-Architecture Images
+# ============================================================
+build-multiarch:
+  stage: build
+  needs: ["detect-upstream-changes"]
+  before_script:
+    # Install dependencies
+    - apk add --no-cache bash git curl jq
+
+    # Setup Docker buildx
+    - docker buildx create --use --name aprsc-builder --driver docker-container || true
+    - docker buildx inspect --bootstrap
+
+    # Install QEMU for multi-arch
+    - docker run --privileged --rm tonistiigi/binfmt --install all
+
+    # Login to Docker Hub
+    - echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+
+  script:
+    # Check if build is needed
+    - |
+      if [ "$FORCE_BUILD" = "true" ]; then
+        echo "Force build enabled via pipeline variable"
+        BUILD_NEEDED=true
+      elif [ -f .gitlab/build-flags.env ]; then
+        source .gitlab/build-flags.env
+        BUILD_NEEDED=$UPSTREAM_CHANGED
+        echo "Upstream changed: $UPSTREAM_CHANGED"
+      else
+        echo "No build flags found, building anyway"
+        BUILD_NEEDED=true
+      fi
+
+    # Exit early if build not needed
+    - |
+      if [ "$BUILD_NEEDED" != "true" ]; then
+        echo "=========================================="
+        echo "No upstream changes detected"
+        echo "Skipping build"
+        echo "=========================================="
+        exit 0
+      fi
+
+    - echo "=========================================="
+    - echo "Building multi-architecture images"
+    - echo "Platforms: $BUILD_PLATFORMS"
+    - echo "=========================================="
+
+    # Build for AMD64 first (for testing)
+    - |
+      docker buildx build \
+        --platform linux/amd64 \
+        --load \
+        -t ${DOCKERHUB_IMAGE}:test \
+        .
+
+    - echo "✓ AMD64 image built and loaded"
+
+    # Extract version from built image
+    - |
+      VERSION=$(docker run --rm ${DOCKERHUB_IMAGE}:test /opt/aprsc/sbin/aprsc --version 2>&1 | grep -oP 'aprsc \K[0-9]+\.[0-9]+\.[0-9]+(-g[0-9a-f]+)?' | head -1)
+      echo "Detected version: $VERSION"
+
+      if [ -z "$VERSION" ]; then
+        echo "Failed to extract version"
+        exit 1
+      fi
+
+      # Save version info
+      echo "VERSION=$VERSION" > .gitlab/version.env
+      echo "BUILD_TIMESTAMP=$(date -u +%Y%m%d_%H%M%S)" >> .gitlab/version.env
+
+      # Parse semantic version
+      SEMANTIC_VERSION=$(echo "$VERSION" | sed 's/-g[0-9a-f]*//')
+      echo "SEMANTIC_VERSION=$SEMANTIC_VERSION" >> .gitlab/version.env
+
+      cat .gitlab/version.env
+
+  artifacts:
+    paths:
+      - .gitlab/version.env
+    reports:
+      dotenv: .gitlab/version.env
+    expire_in: 1 day
+
+  rules:
+    # Run if detect stage ran
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+    - if: $CI_PIPELINE_SOURCE == "web"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+  tags:
+    - docker
+  timeout: 30m
+
+# ============================================================
+# Stage 3: Test Suite
+# ============================================================
+
+# Test 3.1: Basic Container Tests
+test-basic:
+  stage: test
+  needs: ["build-multiarch"]
+  before_script:
+    - apk add --no-cache bash
+  script:
+    - bash .gitlab/scripts/test-container.sh
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: on_success
+    - if: $CI_PIPELINE_SOURCE == "web"
+      when: on_success
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      when: on_success
+  tags:
+    - docker
+  timeout: 10m
+
+# Test 3.2: APRS-IS Connection Test
+test-aprs-connection:
+  stage: test
+  needs: ["build-multiarch"]
+  before_script:
+    - apk add --no-cache bash
+  script:
+    - bash .gitlab/scripts/test-aprs-is.sh
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: on_success
+    - if: $CI_PIPELINE_SOURCE == "web"
+      when: on_success
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      when: on_success
+  tags:
+    - docker
+  timeout: 10m
+
+# Test 3.3: Web Interface Test
+test-web-interface:
+  stage: test
+  needs: ["build-multiarch"]
+  before_script:
+    - apk add --no-cache bash curl
+  script:
+    - bash .gitlab/scripts/test-web.sh
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: on_success
+    - if: $CI_PIPELINE_SOURCE == "web"
+      when: on_success
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      when: on_success
+  tags:
+    - docker
+  timeout: 10m
+
+# ============================================================
+# Stage 4: Push to Docker Hub
+# ============================================================
+push-to-dockerhub:
+  stage: push
+  needs:
+    - build-multiarch
+    - test-basic
+    - test-aprs-connection
+    - test-web-interface
+  before_script:
+    - apk add --no-cache bash git curl
+    - docker buildx create --use --name aprsc-builder --driver docker-container || true
+    - docker run --privileged --rm tonistiigi/binfmt --install all
+    - echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+  script:
+    # Use existing push script (non-interactive mode)
+    - export CI_MODE=true
+    - export DOCKERHUB_USERNAME="${DOCKERHUB_USERNAME}"
+    - bash push-to-dockerhub.sh
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: on_success
+    - if: $CI_PIPELINE_SOURCE == "web"
+      when: on_success
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      when: on_success
+  tags:
+    - docker
+  timeout: 25m
+
+# ============================================================
+# Stage 5: Sync to GitHub
+# ============================================================
+sync-to-github:
+  stage: sync
+  image: alpine/git:latest
+  needs: ["push-to-dockerhub"]
+  before_script:
+    - apk add --no-cache bash openssh-client
+
+    # Configure Git
+    - git config --global user.name "GitLab CI"
+    - git config --global user.email "ci@dev.myhamplace.com"
+
+    # Setup SSH for GitHub
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - echo "$GITHUB_SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+    - chmod 600 ~/.ssh/id_rsa
+    - ssh-keyscan github.com >> ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
+
+  script:
+    - bash .gitlab/scripts/sync-to-github.sh
+
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: on_success
+    - if: $CI_PIPELINE_SOURCE == "web"
+      when: manual
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      when: on_success
+
+  tags:
+    - docker
+  timeout: 5m
+
+# ============================================================
+# Scheduled Pipeline (Daily Cron)
+# ============================================================
+# Configure in GitLab: CI/CD > Schedules
+# Cron: "0 2 * * *" (Daily at 2 AM UTC)
+# Variables: FORCE_BUILD=false

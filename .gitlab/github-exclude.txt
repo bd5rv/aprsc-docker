@@ -1,0 +1,42 @@
+# Files and directories to exclude from GitHub sync
+# These files will only exist in GitLab repository
+
+# ============================================================
+# GitLab CI/CD Configuration (keep private)
+# ============================================================
+.gitlab-ci.yml
+.gitlab/
+
+# ============================================================
+# Setup and credential scripts (GitLab-only tools)
+# ============================================================
+setup-credentials.sh
+
+# ============================================================
+# Files from .gitignore that might be tracked
+# ============================================================
+# Note: Most .gitignore files won't be in git anyway,
+# but we include them here for safety
+
+# Configuration files
+aprsc.conf
+
+# Log files
+logs/
+*.log
+
+# Docker related
+.env
+push-to-dockerhub.sh
+DOCKER_HUB_OVERVIEW.md
+DOCKER_HUB_INFO.txt
+
+# Backup files
+*.bak
+*.old
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo

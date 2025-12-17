@@ -1,5 +1,5 @@
 # Configuration files (may contain sensitive information)
-aprsc.conf
+# aprsc.conf  # Tracked in GitLab, excluded from GitHub
 
 # Log files
 logs/
@@ -8,9 +8,10 @@ logs/
 # Docker related
 .env
 !.env.example
-push-to-dockerhub.sh
-DOCKER_HUB_OVERVIEW.md
-DOCKER_HUB_INFO.txt
+# Following files are tracked in GitLab but excluded from GitHub sync:
+# push-to-dockerhub.sh
+# DOCKER_HUB_OVERVIEW.md
+# DOCKER_HUB_INFO.txt
 
 # Backup files
 *.bak
