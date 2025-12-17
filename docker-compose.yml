@@ -43,6 +43,15 @@ services:
       - ./logs:/var/log/aprsc
       # Persist runtime data (only mount data subdirectory, don't override entire directory)
       - aprsc-data:/var/run/aprsc/data
+
+    # Health check: Verify the service is running and responding
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://127.0.0.1:14501/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
     # Resource limits (optional)
     deploy:
       resources:

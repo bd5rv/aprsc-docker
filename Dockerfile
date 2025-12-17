@@ -76,6 +76,10 @@ WORKDIR /var/run/aprsc
 # Use tini and entrypoint script
 ENTRYPOINT ["/sbin/tini", "--", "/usr/local/bin/entrypoint.sh"]
 
+# Health check: Verify HTTP status page is responding
+HEALTHCHECK --interval=30s --timeout=10s --retries=3 --start-period=40s \
+    CMD wget --quiet --tries=1 --spider http://127.0.0.1:14501/ || exit 1
+
 # Start aprsc
 # Configuration will be auto-generated from environment variables if not provided
 # -u aprsc: Run as aprsc user (secure)
