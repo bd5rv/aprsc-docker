@@ -440,8 +440,23 @@ healthcheck:
   start_period: 40s
 ```
 
+## Testing Connections
+
+See [TESTING.md](TESTING.md) for detailed guide on:
+- Testing APRS-IS connections with telnet
+- Using filters (geographic, callsign, type)
+- Testing script usage
+- Common issues and solutions
+
+Quick test:
+```bash
+./test-aprs-connection.sh localhost 14580 YOUR-CALL
+```
+
 ## Reference Documentation
 
+- [TESTING.md](TESTING.md) - Connection testing guide
+- [ENVIRONMENT.md](ENVIRONMENT.md) - Environment variables guide
 - [aprsc Official Documentation](http://he.fi/aprsc/)
 - [aprsc GitHub](https://github.com/hessu/aprsc)
 - [APRS-IS Protocol](http://www.aprs-is.net/)

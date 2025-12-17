@@ -437,8 +437,23 @@ healthcheck:
   start_period: 40s
 ```
 
+## 测试连接
+
+查看 [TESTING.zh-CN.md](TESTING.zh-CN.md) 获取详细指南：
+- 使用 telnet 测试 APRS-IS 连接
+- 使用过滤器（地理位置、呼号、类型）
+- 测试脚本使用方法
+- 常见问题和解决方案
+
+快速测试：
+```bash
+./test-aprs-connection.sh localhost 14580 YOUR-CALL
+```
+
 ## 参考文档
 
+- [TESTING.zh-CN.md](TESTING.zh-CN.md) - 连接测试指南
+- [ENVIRONMENT.zh-CN.md](ENVIRONMENT.zh-CN.md) - 环境变量指南
 - [aprsc 官方文档](http://he.fi/aprsc/)
 - [aprsc GitHub](https://github.com/hessu/aprsc)
 - [APRS-IS 协议](http://www.aprs-is.net/)
