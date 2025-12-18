@@ -85,8 +85,8 @@ build-multiarch:
     - echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
 
   script:
-    # Check if build is needed
     - |
+      # Check if build is needed
       if [ "$FORCE_BUILD" = "true" ]; then
         echo "Force build enabled via pipeline variable"
         BUILD_NEEDED=true
@@ -99,8 +99,8 @@ build-multiarch:
         BUILD_NEEDED=true
       fi
 
-    # Exit early if build not needed
     - |
+      # Exit early if build not needed
       if [ "$BUILD_NEEDED" != "true" ]; then
         echo "=========================================="
         echo "No upstream changes detected"
@@ -114,8 +114,8 @@ build-multiarch:
     - echo "Platforms: $BUILD_PLATFORMS"
     - echo "=========================================="
 
-    # Build for AMD64 first (for testing)
     - |
+      # Build for AMD64 first (for testing)
       docker buildx build \
         --platform linux/amd64 \
         --load \
@@ -124,8 +124,8 @@ build-multiarch:
 
     - echo "✓ AMD64 image built and loaded"
 
-    # Extract version from built image
     - |
+      # Extract version from built image
       VERSION=$(docker run --rm ${DOCKERHUB_IMAGE}:test /opt/aprsc/sbin/aprsc --version 2>&1 | grep -oP 'aprsc \K[0-9]+\.[0-9]+\.[0-9]+(-g[0-9a-f]+)?' | head -1)
       echo "Detected version: $VERSION"
 
