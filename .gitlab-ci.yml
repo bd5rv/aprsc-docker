@@ -99,7 +99,6 @@ build-multiarch:
         BUILD_NEEDED=true
       fi
 
-    - |
       # Exit early if build not needed
       if [ "$BUILD_NEEDED" != "true" ]; then
         echo "=========================================="
@@ -109,12 +108,11 @@ build-multiarch:
         exit 0
       fi
 
-    - echo "=========================================="
-    - echo "Building multi-architecture images"
-    - echo "Platforms: $BUILD_PLATFORMS"
-    - echo "=========================================="
+      echo "=========================================="
+      echo "Building multi-architecture images"
+      echo "Platforms: $BUILD_PLATFORMS"
+      echo "=========================================="
 
-    - |
       # Build for AMD64 first (for testing)
       docker buildx build \
         --platform linux/amd64 \
@@ -122,9 +120,8 @@ build-multiarch:
         -t ${DOCKERHUB_IMAGE}:test \
         .
 
-    - echo "✓ AMD64 image built and loaded"
+      echo "✓ AMD64 image built and loaded"
 
-    - |
       # Extract version from built image
       VERSION=$(docker run --rm ${DOCKERHUB_IMAGE}:test /opt/aprsc/sbin/aprsc --version 2>&1 | grep -oP 'aprsc \K[0-9]+\.[0-9]+\.[0-9]+(-g[0-9a-f]+)?' | head -1)
       echo "Detected version: $VERSION"
