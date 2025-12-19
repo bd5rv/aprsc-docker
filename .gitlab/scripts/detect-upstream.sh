@@ -12,9 +12,9 @@ echo "=========================================="
 echo "Detecting Upstream Changes"
 echo "=========================================="
 
-# Clone upstream repo (shallow)
+# Clone upstream repo (shallow, use default branch)
 echo "Cloning upstream repository..."
-git clone --depth=1 --branch=master "$UPSTREAM_REPO" /tmp/aprsc-upstream
+git clone --depth=1 "$UPSTREAM_REPO" /tmp/aprsc-upstream
 
 # Get latest commit SHA
 LATEST_SHA=$(cd /tmp/aprsc-upstream && git rev-parse HEAD)
