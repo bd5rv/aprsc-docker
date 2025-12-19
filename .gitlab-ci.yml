@@ -7,8 +7,9 @@
 variables:
   # Docker configuration
   DOCKER_DRIVER: overlay2
-  DOCKER_TLS_CERTDIR: "/certs"
+  DOCKER_TLS_CERTDIR: ""  # Disable TLS for DinD
   DOCKER_BUILDKIT: "1"
+  DOCKER_HOST: tcp://docker:2375  # Non-TLS port
 
   # Project configuration
   DOCKERHUB_IMAGE: "bd5rv/aprsc"
@@ -68,10 +69,6 @@ build-multiarch:
   needs: ["detect-upstream-changes"]
   services:
     - docker:24-dind
-  variables:
-    DOCKER_HOST: tcp://docker:2376
-    DOCKER_TLS_VERIFY: 1
-    DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
   before_script:
     # Install dependencies
     - apk add --no-cache bash git curl jq
@@ -170,10 +167,6 @@ test-basic:
   needs: ["build-multiarch"]
   services:
     - docker:24-dind
-  variables:
-    DOCKER_HOST: tcp://docker:2376
-    DOCKER_TLS_VERIFY: 1
-    DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
   before_script:
     - apk add --no-cache bash
   script:
@@ -195,10 +188,6 @@ test-aprs-connection:
   needs: ["build-multiarch"]
   services:
     - docker:24-dind
-  variables:
-    DOCKER_HOST: tcp://docker:2376
-    DOCKER_TLS_VERIFY: 1
-    DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
   before_script:
     - apk add --no-cache bash
   script:
@@ -220,10 +209,6 @@ test-web-interface:
   needs: ["build-multiarch"]
   services:
     - docker:24-dind
-  variables:
-    DOCKER_HOST: tcp://docker:2376
-    DOCKER_TLS_VERIFY: 1
-    DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
   before_script:
     - apk add --no-cache bash curl
   script:
@@ -251,10 +236,6 @@ push-to-dockerhub:
     - test-web-interface
   services:
     - docker:24-dind
-  variables:
-    DOCKER_HOST: tcp://docker:2376
-    DOCKER_TLS_VERIFY: 1
-    DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
   before_script:
     - apk add --no-cache bash git curl
     - docker buildx create --use --name aprsc-builder --driver docker-container || true
