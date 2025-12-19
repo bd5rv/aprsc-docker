@@ -74,6 +74,22 @@ build-multiarch:
     # Install dependencies
     - apk add --no-cache bash git curl jq
 
+    # Wait for Docker daemon to be ready
+    - |
+      echo "Waiting for Docker daemon to start..."
+      timeout=60
+      elapsed=0
+      while ! docker info >/dev/null 2>&1; do
+        if [ $elapsed -ge $timeout ]; then
+          echo "Timeout waiting for Docker daemon"
+          exit 1
+        fi
+        echo "Docker daemon not ready yet, waiting... ($elapsed/$timeout seconds)"
+        sleep 2
+        elapsed=$((elapsed + 2))
+      done
+      echo "✓ Docker daemon is ready"
+
     # Setup Docker buildx
     - docker buildx create --use --name aprsc-builder --driver docker-container || true
     - docker buildx inspect --bootstrap
