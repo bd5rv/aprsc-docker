@@ -238,10 +238,11 @@ push-to-dockerhub:
     - docker run --privileged --rm tonistiigi/binfmt --install all
     - echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
   script:
-    # Use existing push script (non-interactive mode)
-    - export CI_MODE=true
-    - export DOCKERHUB_USERNAME="${DOCKERHUB_USERNAME}"
-    - bash push-to-dockerhub.sh
+    - |
+      # Use existing push script (non-interactive mode)
+      export CI_MODE=true
+      export DOCKERHUB_USERNAME="${DOCKERHUB_USERNAME}"
+      bash push-to-dockerhub.sh
   rules:
     - if: $CI_PIPELINE_SOURCE == "schedule"
       when: on_success
