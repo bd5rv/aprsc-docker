@@ -68,7 +68,8 @@ build-multiarch:
   stage: build
   needs: ["detect-upstream-changes"]
   services:
-    - docker:24-dind
+    - name: docker:24-dind
+      alias: docker
   before_script:
     # Install dependencies
     - apk add --no-cache bash git curl jq
@@ -166,7 +167,8 @@ test-basic:
   stage: test
   needs: ["build-multiarch"]
   services:
-    - docker:24-dind
+    - name: docker:24-dind
+      alias: docker
   before_script:
     - apk add --no-cache bash
   script:
@@ -187,7 +189,8 @@ test-aprs-connection:
   stage: test
   needs: ["build-multiarch"]
   services:
-    - docker:24-dind
+    - name: docker:24-dind
+      alias: docker
   before_script:
     - apk add --no-cache bash
   script:
@@ -208,7 +211,8 @@ test-web-interface:
   stage: test
   needs: ["build-multiarch"]
   services:
-    - docker:24-dind
+    - name: docker:24-dind
+      alias: docker
   before_script:
     - apk add --no-cache bash curl
   script:
@@ -235,7 +239,8 @@ push-to-dockerhub:
     - test-aprs-connection
     - test-web-interface
   services:
-    - docker:24-dind
+    - name: docker:24-dind
+      alias: docker
   before_script:
     - apk add --no-cache bash git curl
     - docker buildx create --use --name aprsc-builder --driver docker-container || true
