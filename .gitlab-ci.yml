@@ -24,10 +24,6 @@ variables:
   # Force build flag (set via pipeline variable)
   FORCE_BUILD: "false"
 
-# Docker-in-Docker service
-services:
-  - docker:24-dind
-
 # Default image for jobs
 image: docker:24
 
@@ -70,6 +66,8 @@ detect-upstream-changes:
 build-multiarch:
   stage: build
   needs: ["detect-upstream-changes"]
+  services:
+    - docker:24-dind
   before_script:
     # Install dependencies
     - apk add --no-cache bash git curl jq
@@ -166,6 +164,8 @@ build-multiarch:
 test-basic:
   stage: test
   needs: ["build-multiarch"]
+  services:
+    - docker:24-dind
   before_script:
     - apk add --no-cache bash
   script:
@@ -185,6 +185,8 @@ test-basic:
 test-aprs-connection:
   stage: test
   needs: ["build-multiarch"]
+  services:
+    - docker:24-dind
   before_script:
     - apk add --no-cache bash
   script:
@@ -204,6 +206,8 @@ test-aprs-connection:
 test-web-interface:
   stage: test
   needs: ["build-multiarch"]
+  services:
+    - docker:24-dind
   before_script:
     - apk add --no-cache bash curl
   script:
@@ -229,6 +233,8 @@ push-to-dockerhub:
     - test-basic
     - test-aprs-connection
     - test-web-interface
+  services:
+    - docker:24-dind
   before_script:
     - apk add --no-cache bash git curl
     - docker buildx create --use --name aprsc-builder --driver docker-container || true
