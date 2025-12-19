@@ -43,7 +43,14 @@ detect-upstream-changes:
   stage: detect
   image: alpine:latest
   script:
-    - apk add --no-cache bash git
+    - |
+      # Install dependencies with retry
+      for i in 1 2 3; do
+        apk add --no-cache bash git && break || {
+          echo "Attempt $i failed, retrying..."
+          sleep 5
+        }
+      done
     - bash .gitlab/scripts/detect-upstream.sh
   artifacts:
     paths:
@@ -71,8 +78,14 @@ build-multiarch:
     - name: docker:24-dind
       alias: docker
   before_script:
-    # Install dependencies
-    - apk add --no-cache bash git curl jq
+    # Install dependencies with retry
+    - |
+      for i in 1 2 3; do
+        apk add --no-cache bash git curl jq && break || {
+          echo "Attempt $i failed, retrying..."
+          sleep 5
+        }
+      done
 
     # Wait for Docker daemon to be ready
     - |
@@ -186,7 +199,13 @@ test-basic:
     - name: docker:24-dind
       alias: docker
   before_script:
-    - apk add --no-cache bash
+    - |
+      for i in 1 2 3; do
+        apk add --no-cache bash && break || {
+          echo "Attempt $i failed, retrying..."
+          sleep 5
+        }
+      done
   script:
     - bash .gitlab/scripts/test-container.sh
   rules:
@@ -208,7 +227,13 @@ test-aprs-connection:
     - name: docker:24-dind
       alias: docker
   before_script:
-    - apk add --no-cache bash
+    - |
+      for i in 1 2 3; do
+        apk add --no-cache bash && break || {
+          echo "Attempt $i failed, retrying..."
+          sleep 5
+        }
+      done
   script:
     - bash .gitlab/scripts/test-aprs-is.sh
   rules:
@@ -230,7 +255,13 @@ test-web-interface:
     - name: docker:24-dind
       alias: docker
   before_script:
-    - apk add --no-cache bash curl
+    - |
+      for i in 1 2 3; do
+        apk add --no-cache bash curl && break || {
+          echo "Attempt $i failed, retrying..."
+          sleep 5
+        }
+      done
   script:
     - bash .gitlab/scripts/test-web.sh
   rules:
@@ -258,7 +289,13 @@ push-to-dockerhub:
     - name: docker:24-dind
       alias: docker
   before_script:
-    - apk add --no-cache bash git curl
+    - |
+      for i in 1 2 3; do
+        apk add --no-cache bash git curl && break || {
+          echo "Attempt $i failed, retrying..."
+          sleep 5
+        }
+      done
     - docker buildx create --use --name aprsc-builder --driver docker-container || true
     - docker run --privileged --rm tonistiigi/binfmt --install all
     - echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
@@ -287,7 +324,14 @@ sync-to-github:
   image: alpine:latest
   needs: ["push-to-dockerhub"]
   before_script:
-    - apk add --no-cache bash git openssh-client
+    # Install dependencies with retry
+    - |
+      for i in 1 2 3; do
+        apk add --no-cache bash git openssh-client && break || {
+          echo "Attempt $i failed, retrying..."
+          sleep 5
+        }
+      done
 
     # Configure Git
     - git config --global user.name "GitLab CI"
