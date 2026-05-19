@@ -59,8 +59,8 @@ docker run -d \
 
 **Available tags:**
 - `latest` - Latest stable release
-- `2.1.19-g6d55570` - Specific version with git hash
-- `2.1.19` - Semantic version
+- `2.1.20-gfb006f9` - Specific version with git hash
+- `2.1.20` - Semantic version
 - `2.1` - Major.minor version
 - `2` - Major version
 

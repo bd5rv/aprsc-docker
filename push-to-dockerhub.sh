@@ -26,21 +26,22 @@ echo ""
 # Get aprsc full version by building a temporary version-detect image
 echo -e "${YELLOW}Detecting aprsc version...${NC}"
 
-# Try to detect from existing local build first
-APRSC_FULL_VERSION=$(docker run --rm aprsc-docker-aprsc:latest /opt/aprsc/sbin/aprsc --version 2>/dev/null | grep -oP 'aprsc \K[0-9]+\.[0-9]+\.[0-9]+(-g[0-9a-f]+)?' | head -1 || echo "")
+# Build a fresh temporary image to detect the latest upstream version
+echo -e "${YELLOW}Building temporary image for version detection...${NC}"
+docker build --no-cache --quiet --target builder -t aprsc-version-detect:tmp . > /dev/null 2>&1 || true
+APRSC_FULL_VERSION=$(docker run --rm aprsc-version-detect:tmp /tmp/aprsc-install/opt/aprsc/sbin/aprsc --version 2>&1 | grep -oP 'aprsc \K[0-9]+\.[0-9]+\.[0-9]+(-g[0-9a-f]+)?' | head -1 || echo "")
+docker rmi aprsc-version-detect:tmp > /dev/null 2>&1 || true
 
-# If that fails, build a quick temporary image for version detection
+# Fallback to existing local build if temporary build failed
 if [ -z "$APRSC_FULL_VERSION" ]; then
-    echo -e "${YELLOW}Building temporary image for version detection...${NC}"
-    docker build --quiet --target builder -t aprsc-version-detect:tmp . > /dev/null 2>&1 || true
-    APRSC_FULL_VERSION=$(docker run --rm aprsc-version-detect:tmp /tmp/aprsc/sbin/aprsc --version 2>/dev/null | grep -oP 'aprsc \K[0-9]+\.[0-9]+\.[0-9]+(-g[0-9a-f]+)?' | head -1 || echo "")
-    docker rmi aprsc-version-detect:tmp > /dev/null 2>&1 || true
+    echo -e "${YELLOW}Falling back to existing local build...${NC}"
+    APRSC_FULL_VERSION=$(docker run --rm aprsc-docker-aprsc:latest /opt/aprsc/sbin/aprsc --version 2>/dev/null | grep -oP 'aprsc \K[0-9]+\.[0-9]+\.[0-9]+(-g[0-9a-f]+)?' | head -1 || echo "")
 fi
 
-# Fallback to logs if still not found
+# Final fallback
 if [ -z "$APRSC_FULL_VERSION" ]; then
-    echo -e "${YELLOW}Checking logs for version...${NC}"
-    APRSC_FULL_VERSION=$(docker compose logs 2>&1 | grep "Starting up version" | tail -1 | grep -oP 'version \K[0-9]+\.[0-9]+\.[0-9]+(-g[0-9a-f]+)?' || echo "2.1.19-g6d55570")
+    echo -e "${RED}ERROR: Could not detect aprsc version${NC}"
+    exit 1
 fi
 
 if [ -z "$APRSC_FULL_VERSION" ]; then
@@ -151,6 +152,7 @@ START_TIME=$(date +%s)
 
 # Build and push all architectures with all tags
 docker buildx build \
+    --no-cache \
     --platform ${PLATFORMS} \
     --push \
     -t ${FULL_GIT_TAG} \
